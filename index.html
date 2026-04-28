@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 
 <html lang="ar">
@@ -7,7 +8,6 @@
 <title>Coupons</title>
 
 <meta name="theme-color" content="#6C63FF">
-<meta name="apple-mobile-web-app-capable" content="yes">
 
 <style>
 :root{
@@ -25,7 +25,6 @@ body{background:var(--bg)}
   background:linear-gradient(135deg,#6C63FF,#8E7CFF);
   padding:20px;
   color:#fff;
-  position:sticky;top:0;z-index:10;
 }
 
 .search input{
@@ -36,13 +35,12 @@ body{background:var(--bg)}
   margin-top:10px;
 }
 
-/* Container */
+/* Cards */
 .container{
   padding:15px;
   padding-bottom:100px;
 }
 
-/* Card */
 .card{
   background:#fff;
   border-radius:16px;
@@ -77,7 +75,7 @@ body{background:var(--bg)}
 .brand{font-weight:bold;font-size:14px}
 .code{color:var(--primary);font-size:13px}
 
-/* Actions */
+/* Buttons */
 .actions{display:flex;gap:6px}
 
 button{
@@ -85,7 +83,6 @@ button{
   padding:6px 10px;
   border-radius:8px;
   cursor:pointer;
-  font-size:12px;
 }
 
 .copy{background:var(--primary);color:#fff}
@@ -147,38 +144,19 @@ button{
 <div class="toast" id="toast"></div>
 
 <script>
-// DATA (اسم + كود + لوغو + رابط)
 const coupons = [
-{brand:"Vogacloset",code:"GGG",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
-{brand:"Vogacloset",code:"GM",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
-{brand:"Mamas & Papas",code:"ADL12",logo:"https://logo.clearbit.com/mamasandpapas.com",link:"https://mamasandpapas.com"},
-{brand:"Styli",code:"TSSS",logo:"https://logo.clearbit.com/styli.com",link:"https://styli.com"},
-{brand:"Mumzworld",code:"ADL33",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
-{brand:"Mumzworld",code:"XV9",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
-{brand:"NOON",code:"ZZZ10",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
-{brand:"NOON",code:"SWE22",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
-{brand:"Metro Brazil",code:"VRS23",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
-{brand:"Metro Brazil",code:"AD55",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
-{brand:"FirstCry",code:"DT",logo:"https://logo.clearbit.com/firstcry.com",link:"https://firstcry.com"},
-{brand:"Izil Beauty",code:"MM90",logo:"https://logo.clearbit.com/izilbeauty.com",link:"https://izilbeauty.com"},
-{brand:"Nayomi",code:"NEW93",logo:"https://logo.clearbit.com/nayomi.com",link:"https://nayomi.com"},
-{brand:"Namshi",code:"SW7",logo:"https://logo.clearbit.com/namshi.com",link:"https://namshi.com"},
-{brand:"Max Fashion",code:"ATRD",logo:"https://logo.clearbit.com/maxfashion.com",link:"https://maxfashion.com"},
-{brand:"Trendyol",code:"SWEA",logo:"https://logo.clearbit.com/trendyol.com",link:"https://trendyol.com"},
-{brand:"Reef Perfume",code:"REE2",logo:"https://logo.clearbit.com/reefperfumes.com",link:"https://reefperfumes.com"}
+{brand:"Izil Beauty",code:"MM90",logo:"images/izil.png",link:"https://izilbeauty.com"},
+{brand:"Reef Perfume",code:"REE2",logo:"images/reef.png",link:"https://reefperfumes.com"},
+{brand:"Metro Brazil",code:"VRS23",logo:"images/metro.png",link:"https://metrobrazil.com"},
+{brand:"Nayomi",code:"NEW93",logo:"images/nayomi.png",link:"https://nayomi.com"},
+{brand:"مفارش العييري",code:"KY43",logo:"images/ayyari.png",link:"#"}
 ];
 
 let saved = JSON.parse(localStorage.getItem("savedCoupons")) || [];
 
-// Render
 function render(data){
   const list=document.getElementById("list");
   list.innerHTML="";
-
-  if(data.length===0){
-    list.innerHTML="<p style='text-align:center;color:#999'>لا يوجد نتائج</p>";
-    return;
-  }
 
   data.forEach(c=>{
     const card=document.createElement("div");
@@ -198,17 +176,14 @@ function render(data){
       </div>
     `;
 
-    // open link
     card.onclick=()=>window.open(c.link,"_blank");
 
-    // copy
     card.querySelector(".copy").onclick=(e)=>{
       e.stopPropagation();
       navigator.clipboard.writeText(c.code);
       toast("Copied!");
     };
 
-    // save
     card.querySelector(".save").onclick=(e)=>{
       e.stopPropagation();
       if(!saved.find(s=>s.code===c.code)){
@@ -223,7 +198,6 @@ function render(data){
   });
 }
 
-// Search
 document.getElementById("search").oninput=(e)=>{
   const v=e.target.value.toLowerCase();
   render(coupons.filter(c=>
@@ -232,27 +206,10 @@ document.getElementById("search").oninput=(e)=>{
   ));
 };
 
-// Navigation
-function setActive(btn){
-  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
-}
+function showAll(){render(coupons);}
+function showSaved(){render(saved);}
+function showOffers(){toast("قريباً 🚀");}
 
-function showAll(){
-  setActive(document.getElementById("allBtn"));
-  render(coupons);
-}
-
-function showSaved(){
-  setActive(document.getElementById("savedBtn"));
-  render(saved);
-}
-
-function showOffers(){
-  toast("Offers soon 🚀");
-}
-
-// Toast
 function toast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
@@ -260,9 +217,9 @@ function toast(msg){
   setTimeout(()=>t.classList.remove("show"),2000);
 }
 
-// Init
 render(coupons);
 </script>
 
 </body>
 </html>
+Sent from Outlook for iOS
