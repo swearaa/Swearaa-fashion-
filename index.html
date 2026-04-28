@@ -1,60 +1,46 @@
-
 <!DOCTYPE html>
-
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coupons</title>
 
-<meta name="theme-color" content="#6C63FF">
-
 <style>
-:root{
-  --primary:#6C63FF;
-  --bg:#f5f6fa;
-  --green:#00C853;
+body{
+  margin:0;
+  font-family:system-ui;
+  background:#f5f6fa;
 }
-
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-
-body{background:var(--bg)}
 
 /* Header */
 .header{
-  background:linear-gradient(135deg,#6C63FF,#8E7CFF);
-  padding:20px;
+  background:#6C63FF;
+  padding:15px;
   color:#fff;
 }
 
 .search input{
   width:100%;
-  padding:12px;
+  padding:10px;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   margin-top:10px;
 }
 
-/* Cards */
-.container{
-  padding:15px;
-  padding-bottom:100px;
-}
+/* List */
+.container{padding:10px}
 
-.card{
+/* Item (مثل الصورة) */
+.item{
   background:#fff;
-  border-radius:16px;
+  border-radius:14px;
   padding:12px;
-  margin-bottom:12px;
+  margin-bottom:10px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  box-shadow:0 5px 12px rgba(0,0,0,0.05);
-  cursor:pointer;
-  transition:.2s;
+  justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
-
-.card:hover{transform:translateY(-3px)}
 
 .left{
   display:flex;
@@ -63,38 +49,52 @@ body{background:var(--bg)}
 }
 
 .logo{
-  width:45px;
-  height:45px;
+  width:42px;
+  height:42px;
   border-radius:10px;
   object-fit:contain;
   background:#fff;
-  padding:5px;
   border:1px solid #eee;
 }
 
-.brand{font-weight:bold;font-size:14px}
-.code{color:var(--primary);font-size:13px}
+.brand{
+  font-size:14px;
+  font-weight:600;
+}
+
+/* الكود مثل الصورة */
+.code{
+  background:#f1f2f6;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+}
 
 /* Buttons */
-.actions{display:flex;gap:6px}
+.actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 
 button{
   border:none;
-  padding:6px 10px;
-  border-radius:8px;
+  padding:6px 8px;
+  border-radius:6px;
   cursor:pointer;
 }
 
-.copy{background:var(--primary);color:#fff}
+.copy{background:#6C63FF;color:#fff}
 .save{background:#eee}
 
-/* Nav */
+/* Bottom Nav */
 .nav{
   position:fixed;
   bottom:0;
   width:100%;
-  display:flex;
   background:#fff;
+  display:flex;
   border-top:1px solid #ddd;
 }
 
@@ -104,15 +104,13 @@ button{
   background:none;
 }
 
-.active{color:var(--primary);font-weight:bold}
-
 /* Toast */
 .toast{
   position:fixed;
-  bottom:80px;
+  bottom:70px;
   left:50%;
   transform:translateX(-50%);
-  background:var(--green);
+  background:#00C853;
   color:#fff;
   padding:10px 20px;
   border-radius:20px;
@@ -127,7 +125,7 @@ button{
 <body>
 
 <div class="header">
-  <h2>🔥 كوبونات</h2>
+  <h3>🔥 كوبونات</h3>
   <div class="search">
     <input id="search" placeholder="ابحث عن متجر أو كود">
   </div>
@@ -136,20 +134,19 @@ button{
 <div class="container" id="list"></div>
 
 <div class="nav">
-  <button id="allBtn" class="active" onclick="showAll()">الكل</button>
-  <button id="savedBtn" onclick="showSaved()">المحفوظة</button>
-  <button onclick="showOffers()">العروض</button>
+  <button onclick="showAll()">الكل</button>
+  <button onclick="showSaved()">المحفوظة</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 const coupons = [
-{brand:"Izil Beauty",code:"MM90",logo:"images/izil.png",link:"https://izilbeauty.com"},
-{brand:"Reef Perfume",code:"REE2",logo:"images/reef.png",link:"https://reefperfumes.com"},
-{brand:"Metro Brazil",code:"VRS23",logo:"images/metro.png",link:"https://metrobrazil.com"},
-{brand:"Nayomi",code:"NEW93",logo:"images/nayomi.png",link:"https://nayomi.com"},
-{brand:"مفارش العييري",code:"KY43",logo:"images/ayyari.png",link:"#"}
+{brand:"Izil Beauty",code:"MM90",logo:"https://logo.clearbit.com/izilbeauty.com",link:"https://izilbeauty.com"},
+{brand:"Reef Perfume",code:"REE2",logo:"https://logo.clearbit.com/reefperfumes.com",link:"https://reefperfumes.com"},
+{brand:"Metro Brazil",code:"VRS23",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
+{brand:"Nayomi",code:"NEW93",logo:"https://logo.clearbit.com/nayomi.com",link:"https://nayomi.com"},
+{brand:"مفارش العييري",code:"KY43",logo:"https://via.placeholder.com/80?text=AYYARI",link:"#"}
 ];
 
 let saved = JSON.parse(localStorage.getItem("savedCoupons")) || [];
@@ -159,45 +156,46 @@ function render(data){
   list.innerHTML="";
 
   data.forEach(c=>{
-    const card=document.createElement("div");
-    card.className="card";
+    const div=document.createElement("div");
+    div.className="item";
 
-    card.innerHTML=`
+    div.innerHTML=`
       <div class="left">
         <img class="logo" src="${c.logo}">
-        <div>
-          <div class="brand">${c.brand}</div>
-          <div class="code">${c.code}</div>
-        </div>
+        <div class="brand">${c.brand}</div>
       </div>
+
       <div class="actions">
-        <button class="copy">Copy</button>
-        <button class="save">${saved.find(s=>s.code===c.code)?"✔":"Save"}</button>
+        <div class="code">${c.code}</div>
+        <button class="copy">📋</button>
+        <button class="save">${saved.find(s=>s.code===c.code)?"⭐":"☆"}</button>
       </div>
     `;
 
-    card.onclick=()=>window.open(c.link,"_blank");
+    div.onclick=()=>window.open(c.link);
 
-    card.querySelector(".copy").onclick=(e)=>{
+    // copy
+    div.querySelector(".copy").onclick=(e)=>{
       e.stopPropagation();
       navigator.clipboard.writeText(c.code);
-      toast("Copied!");
+      toast("تم النسخ");
     };
 
-    card.querySelector(".save").onclick=(e)=>{
+    // save
+    div.querySelector(".save").onclick=(e)=>{
       e.stopPropagation();
       if(!saved.find(s=>s.code===c.code)){
         saved.push(c);
         localStorage.setItem("savedCoupons",JSON.stringify(saved));
-        toast("Saved!");
-        render(coupons);
+        toast("تم الحفظ");
       }
     };
 
-    list.appendChild(card);
+    list.appendChild(div);
   });
 }
 
+// search
 document.getElementById("search").oninput=(e)=>{
   const v=e.target.value.toLowerCase();
   render(coupons.filter(c=>
@@ -208,7 +206,6 @@ document.getElementById("search").oninput=(e)=>{
 
 function showAll(){render(coupons);}
 function showSaved(){render(saved);}
-function showOffers(){toast("قريباً 🚀");}
 
 function toast(msg){
   const t=document.getElementById("toast");
@@ -222,4 +219,3 @@ render(coupons);
 
 </body>
 </html>
-Sent from Outlook for iOS
