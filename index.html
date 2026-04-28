@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coupons App</title>
-
-<!-- PWA Style -->
+<title>Coupons</title>
 
 <meta name="theme-color" content="#6C63FF">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,33 +12,20 @@
 <style>
 :root{
   --primary:#6C63FF;
-  --bg:#f4f6fb;
+  --bg:#f5f6fa;
   --green:#00C853;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
 
-body{
-  background:var(--bg);
-}
+body{background:var(--bg)}
 
 /* Header */
 .header{
   background:linear-gradient(135deg,#6C63FF,#8E7CFF);
   padding:20px;
   color:#fff;
-  position:sticky;
-  top:0;
-  z-index:10;
-}
-
-.header h2{
-  margin-bottom:10px;
+  position:sticky;top:0;z-index:10;
 }
 
 .search input{
@@ -48,66 +33,65 @@ body{
   padding:12px;
   border:none;
   border-radius:12px;
-  outline:none;
+  margin-top:10px;
 }
 
 /* Container */
 .container{
   padding:15px;
-  padding-bottom:90px;
+  padding-bottom:100px;
 }
 
 /* Card */
 .card{
   background:#fff;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:14px;
-  box-shadow:0 6px 15px rgba(0,0,0,0.06);
+  border-radius:16px;
+  padding:12px;
+  margin-bottom:12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  box-shadow:0 5px 12px rgba(0,0,0,0.05);
   cursor:pointer;
   transition:.2s;
 }
 
-.card:hover{
-  transform:translateY(-4px);
-}
+.card:hover{transform:translateY(-3px)}
 
-.brand{
-  font-weight:600;
-}
-
-.code{
-  color:var(--primary);
-  margin-top:6px;
-  font-size:18px;
-}
-
-/* Actions */
-.actions{
+.left{
   display:flex;
+  align-items:center;
   gap:10px;
 }
 
+.logo{
+  width:45px;
+  height:45px;
+  border-radius:10px;
+  object-fit:contain;
+  background:#fff;
+  padding:5px;
+  border:1px solid #eee;
+}
+
+.brand{font-weight:bold;font-size:14px}
+.code{color:var(--primary);font-size:13px}
+
+/* Actions */
+.actions{display:flex;gap:6px}
+
 button{
   border:none;
-  padding:8px 12px;
-  border-radius:10px;
+  padding:6px 10px;
+  border-radius:8px;
   cursor:pointer;
+  font-size:12px;
 }
 
-.copy{
-  background:var(--primary);
-  color:#fff;
-}
+.copy{background:var(--primary);color:#fff}
+.save{background:#eee}
 
-.save{
-  background:#eee;
-}
-
-/* Bottom Nav */
+/* Nav */
 .nav{
   position:fixed;
   bottom:0;
@@ -123,10 +107,7 @@ button{
   background:none;
 }
 
-.active{
-  color:var(--primary);
-  font-weight:bold;
-}
+.active{color:var(--primary);font-weight:bold}
 
 /* Toast */
 .toast{
@@ -141,10 +122,7 @@ button{
   opacity:0;
   transition:.3s;
 }
-
-.toast.show{
-  opacity:1;
-}
+.toast.show{opacity:1}
 </style>
 
 </head>
@@ -152,112 +130,107 @@ button{
 <body>
 
 <div class="header">
-  <h2>🔥 Coupons</h2>
+  <h2>🔥 كوبونات</h2>
   <div class="search">
-    <input id="search" placeholder="Search by brand or code...">
+    <input id="search" placeholder="ابحث عن متجر أو كود">
   </div>
 </div>
 
 <div class="container" id="list"></div>
 
 <div class="nav">
-  <button id="allBtn" class="active" onclick="showAll()">All</button>
-  <button id="savedBtn" onclick="showSaved()">Saved</button>
-  <button onclick="showOffers()">Offers</button>
+  <button id="allBtn" class="active" onclick="showAll()">الكل</button>
+  <button id="savedBtn" onclick="showSaved()">المحفوظة</button>
+  <button onclick="showOffers()">العروض</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// DATA (from your image)
+// DATA (اسم + كود + لوغو + رابط)
 const coupons = [
-{brand:"Vogacloset", code:"GGG", link:"https://vogacloset.com"},
-{brand:"Vogacloset", code:"GM", link:"https://vogacloset.com"},
-{brand:"Mamas and Papas", code:"ADL12", link:"https://mamasandpapas.com"},
-{brand:"Styli", code:"TSSS", link:"https://styli.com"},
-{brand:"Mumzworld", code:"ADL33", link:"https://mumzworld.com"},
-{brand:"Mumzworld", code:"XV9", link:"https://mumzworld.com"},
-{brand:"NOON", code:"ZZZ10", link:"https://noon.com"},
-{brand:"NOON", code:"SWE22", link:"https://noon.com"},
-{brand:"Selen", code:"S80", link:"#"},
-{brand:"Metro Brazil", code:"VRS23", link:"https://metrobrazil.com"},
-{brand:"Metro Brazil", code:"AD55", link:"https://metrobrazil.com"},
-{brand:"FirstCry", code:"DT", link:"https://firstcry.com"},
-{brand:"Izil Beauty", code:"MM90", link:"https://izilbeauty.com"},
-{brand:"Nayomi", code:"NEW93", link:"https://nayomi.com"},
-{brand:"Namshi", code:"SW7", link:"https://namshi.com"},
-{brand:"Max Fashion", code:"ATRD", link:"https://maxfashion.com"},
-{brand:"Trendyol", code:"SWEA", link:"https://trendyol.com"},
-{brand:"Al Ayyari", code:"KY43", link:"#"},
-{brand:"Bloomingdale's", code:"ADL3", link:"#"},
-{brand:"Reef Perfume", code:"REE2", link:"https://reefperfumes.com"},
-{brand:"Sandro", code:"SAN40", link:"#"},
-{brand:"6thStreet", code:"EB52", link:"#"},
-{brand:"Golden Scent", code:"G4WQ", link:"#"},
-{brand:"Riva", code:"SKK6", link:"#"},
-{brand:"Eyewa", code:"KSA19", link:"#"},
-{brand:"Level Shoes", code:"LEV67", link:"#"},
-{brand:"Nice One", code:"S67", link:"#"}
+{brand:"Vogacloset",code:"GGG",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
+{brand:"Vogacloset",code:"GM",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
+{brand:"Mamas & Papas",code:"ADL12",logo:"https://logo.clearbit.com/mamasandpapas.com",link:"https://mamasandpapas.com"},
+{brand:"Styli",code:"TSSS",logo:"https://logo.clearbit.com/styli.com",link:"https://styli.com"},
+{brand:"Mumzworld",code:"ADL33",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
+{brand:"Mumzworld",code:"XV9",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
+{brand:"NOON",code:"ZZZ10",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
+{brand:"NOON",code:"SWE22",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
+{brand:"Metro Brazil",code:"VRS23",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
+{brand:"Metro Brazil",code:"AD55",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
+{brand:"FirstCry",code:"DT",logo:"https://logo.clearbit.com/firstcry.com",link:"https://firstcry.com"},
+{brand:"Izil Beauty",code:"MM90",logo:"https://logo.clearbit.com/izilbeauty.com",link:"https://izilbeauty.com"},
+{brand:"Nayomi",code:"NEW93",logo:"https://logo.clearbit.com/nayomi.com",link:"https://nayomi.com"},
+{brand:"Namshi",code:"SW7",logo:"https://logo.clearbit.com/namshi.com",link:"https://namshi.com"},
+{brand:"Max Fashion",code:"ATRD",logo:"https://logo.clearbit.com/maxfashion.com",link:"https://maxfashion.com"},
+{brand:"Trendyol",code:"SWEA",logo:"https://logo.clearbit.com/trendyol.com",link:"https://trendyol.com"},
+{brand:"Reef Perfume",code:"REE2",logo:"https://logo.clearbit.com/reefperfumes.com",link:"https://reefperfumes.com"}
 ];
 
-let savedCoupons = JSON.parse(localStorage.getItem("savedCoupons")) || [];
+let saved = JSON.parse(localStorage.getItem("savedCoupons")) || [];
 
 // Render
-function render(list){
-  const container = document.getElementById("list");
-  container.innerHTML = "";
+function render(data){
+  const list=document.getElementById("list");
+  list.innerHTML="";
 
-  if(list.length === 0){
-    container.innerHTML = "<p style='text-align:center;color:#999'>No results</p>";
+  if(data.length===0){
+    list.innerHTML="<p style='text-align:center;color:#999'>لا يوجد نتائج</p>";
     return;
   }
 
-  list.forEach(c=>{
-    const card = document.createElement("div");
-    card.className = "card";
+  data.forEach(c=>{
+    const card=document.createElement("div");
+    card.className="card";
 
-    card.innerHTML = `
-      <div>
-        <div class="brand">${c.brand}</div>
-        <div class="code">${c.code}</div>
+    card.innerHTML=`
+      <div class="left">
+        <img class="logo" src="${c.logo}">
+        <div>
+          <div class="brand">${c.brand}</div>
+          <div class="code">${c.code}</div>
+        </div>
       </div>
       <div class="actions">
         <button class="copy">Copy</button>
-        <button class="save">${savedCoupons.find(s=>s.code===c.code)?"Saved":"Save"}</button>
+        <button class="save">${saved.find(s=>s.code===c.code)?"✔":"Save"}</button>
       </div>
     `;
 
-    card.onclick = ()=> window.open(c.link, "_blank");
+    // open link
+    card.onclick=()=>window.open(c.link,"_blank");
 
-    card.querySelector(".copy").onclick = (e)=>{
+    // copy
+    card.querySelector(".copy").onclick=(e)=>{
       e.stopPropagation();
       navigator.clipboard.writeText(c.code);
-      showToast("Copied!");
+      toast("Copied!");
     };
 
-    card.querySelector(".save").onclick = (e)=>{
+    // save
+    card.querySelector(".save").onclick=(e)=>{
       e.stopPropagation();
-      if(!savedCoupons.find(s=>s.code===c.code)){
-        savedCoupons.push(c);
-        localStorage.setItem("savedCoupons", JSON.stringify(savedCoupons));
-        showToast("Saved!");
+      if(!saved.find(s=>s.code===c.code)){
+        saved.push(c);
+        localStorage.setItem("savedCoupons",JSON.stringify(saved));
+        toast("Saved!");
         render(coupons);
       }
     };
 
-    container.appendChild(card);
+    list.appendChild(card);
   });
 }
 
 // Search
-document.getElementById("search").addEventListener("input", e=>{
-  const val = e.target.value.toLowerCase();
-  const filtered = coupons.filter(c =>
-    c.brand.toLowerCase().includes(val) ||
-    c.code.toLowerCase().includes(val)
-  );
-  render(filtered);
-});
+document.getElementById("search").oninput=(e)=>{
+  const v=e.target.value.toLowerCase();
+  render(coupons.filter(c=>
+    c.brand.toLowerCase().includes(v) ||
+    c.code.toLowerCase().includes(v)
+  ));
+};
 
 // Navigation
 function setActive(btn){
@@ -272,17 +245,17 @@ function showAll(){
 
 function showSaved(){
   setActive(document.getElementById("savedBtn"));
-  render(savedCoupons);
+  render(saved);
 }
 
 function showOffers(){
-  showToast("Offers coming soon 🚀");
+  toast("Offers soon 🚀");
 }
 
 // Toast
-function showToast(msg){
-  const t = document.getElementById("toast");
-  t.innerText = msg;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),2000);
 }
@@ -293,4 +266,3 @@ render(coupons);
 
 </body>
 </html>
-
