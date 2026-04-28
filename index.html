@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coupons App</title>
+
+<meta name="theme-color" content="#6C63FF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<style>
+:root{
+  --primary:#6C63FF;
+  --bg:#f5f6fa;
+  --green:#00C853;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+
+body{background:var(--bg)}
+
+/* Header */
+.header{
+  background:linear-gradient(135deg,#6C63FF,#8E7CFF);
+  padding:20px;
+  color:#fff;
+  position:sticky;top:0;z-index:10;
+}
+
+.search input{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  margin-top:10px;
+}
+
+/* Container */
+.container{
+  padding:15px;
+  padding-bottom:100px;
+}
+
+/* Card */
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 6px 15px rgba(0,0,0,0.06);
+  cursor:pointer;
+  transition:.2s;
+}
+
+.card:hover{transform:translateY(-4px)}
+
+.left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo{
+  width:50px;
+  height:50px;
+  border-radius:12px;
+  object-fit:contain;
+  background:#fff;
+  border:1px solid #eee;
+}
+
+.logo-fallback{
+  width:50px;
+  height:50px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eee;
+  font-size:12px;
+  color:#555;
+}
+
+.brand{font-weight:bold}
+.code{color:var(--primary);font-size:13px}
+
+/* Buttons */
+.actions{display:flex;gap:6px}
+
+button{
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.copy{background:var(--primary);color:#fff}
+.save{background:#eee}
+
+/* Bottom Nav */
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  background:#fff;
+  border-top:1px solid #ddd;
+}
+
+.nav button{
+  flex:1;
+  padding:12px;
+  background:none;
+}
+
+.active{color:var(--primary);font-weight:bold}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--green);
+  color:#fff;
+  padding:10px 20px;
+  border-radius:20px;
+  opacity:0;
+  transition:.3s;
+}
+.toast.show{opacity:1}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+  <h2>🔥 كوبونات</h2>
+  <div class="search">
+    <input id="search" placeholder="ابحث عن متجر أو كود">
+  </div>
+</div>
+
+<div class="container" id="list"></div>
+
+<div class="nav">
+  <button id="allBtn" class="active" onclick="showAll()">الكل</button>
+  <button id="savedBtn" onclick="showSaved()">المحفوظة</button>
+  <button onclick="toast('Offers soon 🚀')">العروض</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const coupons = [
+{brand:"Vogacloset",code:"GGG",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
+{brand:"Vogacloset",code:"GM",logo:"https://logo.clearbit.com/vogacloset.com",link:"https://vogacloset.com"},
+{brand:"Mamas & Papas",code:"ADL12",logo:"https://logo.clearbit.com/mamasandpapas.com",link:"https://mamasandpapas.com"},
+{brand:"Styli",code:"TSSS",logo:"https://logo.clearbit.com/styli.com",link:"https://styli.com"},
+{brand:"Mumzworld",code:"ADL33",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
+{brand:"Mumzworld",code:"XV9",logo:"https://logo.clearbit.com/mumzworld.com",link:"https://mumzworld.com"},
+{brand:"NOON",code:"ZZZ10",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
+{brand:"NOON",code:"SWE22",logo:"https://logo.clearbit.com/noon.com",link:"https://noon.com"},
+{brand:"Metro Brazil",code:"VRS23",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
+{brand:"Metro Brazil",code:"AD55",logo:"https://logo.clearbit.com/metrobrazil.com",link:"https://metrobrazil.com"},
+{brand:"FirstCry",code:"DT",logo:"https://logo.clearbit.com/firstcry.com",link:"https://firstcry.com"},
+{brand:"Izil Beauty",code:"MM90",logo:"https://logo.clearbit.com/izilbeauty.com",link:"https://izilbeauty.com"},
+{brand:"Nayomi",code:"NEW93",logo:"https://logo.clearbit.com/nayomi.com",link:"https://nayomi.com"},
+{brand:"Namshi",code:"SW7",logo:"https://logo.clearbit.com/namshi.com",link:"https://namshi.com"},
+{brand:"Max Fashion",code:"ATRD",logo:"https://logo.clearbit.com/maxfashion.com",link:"https://maxfashion.com"},
+{brand:"Trendyol",code:"SWEA",logo:"https://logo.clearbit.com/trendyol.com",link:"https://trendyol.com"},
+{brand:"مفارش العييري",code:"KY43",logo:"",link:"#"},
+{brand:"Bloomingdale's",code:"ADL3",logo:"",link:"#"},
+{brand:"Reef Perfume",code:"REE2",logo:"https://logo.clearbit.com/reefperfumes.com",link:"https://reefperfumes.com"},
+{brand:"Sandro",code:"SAN40",logo:"",link:"#"},
+{brand:"6thStreet",code:"EB52",logo:"",link:"#"},
+{brand:"Golden Scent",code:"G4WQ",logo:"",link:"#"},
+{brand:"Riva",code:"SKK6",logo:"",link:"#"},
+{brand:"Eyewa",code:"KSA19",logo:"",link:"#"},
+{brand:"Level Shoes",code:"LEV67",logo:"",link:"#"},
+{brand:"Nice One",code:"S67",logo:"",link:"#"}
+];
+
+let saved = JSON.parse(localStorage.getItem("savedCoupons")) || [];
+
+function render(data){
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  data.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="card";
+
+    const logoHTML = c.logo 
+      ? `<img class="logo" src="${c.logo}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+         <div class="logo-fallback" style="display:none">${c.brand[0]}</div>`
+      : `<div class="logo-fallback">${c.brand[0]}</div>`;
+
+    div.innerHTML=`
+      <div class="left">
+        ${logoHTML}
+        <div>
+          <div class="brand">${c.brand}</div>
+          <div class="code">${c.code}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="copy">Copy</button>
+        <button class="save">${saved.find(s=>s.code===c.code)?"✔":"Save"}</button>
+      </div>
+    `;
+
+    div.onclick=()=>window.open(c.link,"_blank");
+
+    div.querySelector(".copy").onclick=(e)=>{
+      e.stopPropagation();
+      navigator.clipboard.writeText(c.code);
+      toast("Copied!");
+    };
+
+    div.querySelector(".save").onclick=(e)=>{
+      e.stopPropagation();
+      if(!saved.find(s=>s.code===c.code)){
+        saved.push(c);
+        localStorage.setItem("savedCoupons",JSON.stringify(saved));
+        toast("Saved!");
+        render(coupons);
+      }
+    };
+
+    list.appendChild(div);
+  });
+}
+
+// Search
+document.getElementById("search").oninput=(e)=>{
+  const v=e.target.value.toLowerCase();
+  render(coupons.filter(c=>
+    c.brand.toLowerCase().includes(v) ||
+    c.code.toLowerCase().includes(v)
+  ));
+};
+
+function setActive(btn){
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+function showAll(){
+  setActive(document.getElementById("allBtn"));
+  render(coupons);
+}
+
+function showSaved(){
+  setActive(document.getElementById("savedBtn"));
+  render(saved);
+}
+
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+render(coupons);
+</script>
+
+</body>
+</html>
