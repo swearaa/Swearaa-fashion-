@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coupons</title>
+
+<style>
+body{margin:0;font-family:system-ui;background:#f5f6fa}
+.header{background:#6C63FF;padding:15px;color:#fff}
+.search input{width:100%;padding:10px;border:none;border-radius:10px;margin-top:10px}
+.container{padding:10px}
+.item{background:#fff;border-radius:14px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 6px rgba(0,0,0,0.05)}
+.left{display:flex;align-items:center;gap:10px}
+.logo{width:42px;height:42px;object-fit:contain}
+.brand{font-weight:600;font-size:14px}
+.code{background:#f1f2f6;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:bold}
+.actions{display:flex;gap:6px}
+button{border:none;padding:5px 7px;border-radius:6px;cursor:pointer;font-size:12px}
+.copy{background:#6C63FF;color:#fff}
+.save{background:#eee}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#00C853;color:#fff;padding:10px 20px;border-radius:20px;opacity:0;transition:.3s}
+.toast.show{opacity:1}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+  <h3>🔥 كوبونات</h3>
+  <div class="search">
+    <input id="search" placeholder="ابحث...">
+  </div>
+</div>
+
+<div class="container" id="list"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+
+// ⚡ لوقوهات حقيقية (مو من الصورة)
+const coupons = [
+{brand:"Vogacloset",code:"GGG",logo:"https://logo.clearbit.com/vogacloset.com"},
+{brand:"Vogacloset",code:"GM",logo:"https://logo.clearbit.com/vogacloset.com"},
+{brand:"Mamas & Papas",code:"ADL12",logo:"https://logo.clearbit.com/mamasandpapas.com"},
+{brand:"Styli",code:"TSSS",logo:"https://logo.clearbit.com/styli.com"},
+{brand:"Mumzworld",code:"ADL33",logo:"https://logo.clearbit.com/mumzworld.com"},
+{brand:"Mumzworld",code:"XV9",logo:"https://logo.clearbit.com/mumzworld.com"},
+{brand:"NOON",code:"ZZZ10",logo:"https://logo.clearbit.com/noon.com"},
+{brand:"NOON",code:"SWE22",logo:"https://logo.clearbit.com/noon.com"},
+{brand:"Metro Brazil",code:"VRS23",logo:"https://logo.clearbit.com/metrobrazil.com"},
+{brand:"Metro Brazil",code:"AD55",logo:"https://logo.clearbit.com/metrobrazil.com"},
+{brand:"FirstCry",code:"DT",logo:"https://logo.clearbit.com/firstcry.com"},
+{brand:"Izil Beauty",code:"MM90",logo:"https://logo.clearbit.com/izilbeauty.com"},
+{brand:"Nayomi",code:"NEW93",logo:"https://logo.clearbit.com/nayomi.com"},
+{brand:"Namshi",code:"SW7",logo:"https://logo.clearbit.com/namshi.com"},
+{brand:"Max Fashion",code:"ATRD",logo:"https://logo.clearbit.com/maxfashion.com"},
+{brand:"Trendyol",code:"SWEA",logo:"https://logo.clearbit.com/trendyol.com"},
+{brand:"Reef Perfume",code:"REE2",logo:"https://logo.clearbit.com/reefperfumes.com"},
+{brand:"مفارش العييري",code:"KY43",logo:"https://dummyimage.com/80x80/000/fff&text=A"}
+];
+
+let saved=[];
+
+function render(data){
+  const list=document.getElementById("list");
+  list.innerHTML="";
+
+  data.forEach(c=>{
+    const div=document.createElement("div");
+    div.className="item";
+
+    div.innerHTML=`
+      <div class="left">
+        <img class="logo" src="${c.logo}" onerror="this.remove()">
+        <div class="brand">${c.brand}</div>
+      </div>
+      <div class="actions">
+        <div class="code">${c.code}</div>
+        <button class="copy">📋</button>
+      </div>
+    `;
+
+    div.querySelector(".copy").onclick=(e)=>{
+      e.stopPropagation();
+      navigator.clipboard.writeText(c.code);
+      toast("تم النسخ");
+    };
+
+    list.appendChild(div);
+  });
+}
+
+document.getElementById("search").oninput=(e)=>{
+  const v=e.target.value.toLowerCase();
+  render(coupons.filter(c=>c.brand.toLowerCase().includes(v)||c.code.toLowerCase().includes(v)));
+};
+
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.innerText=msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2000);
+}
+
+render(coupons);
+
+</script>
+
+</body>
+</html>
